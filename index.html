@@ -1,0 +1,98 @@
+ <!DOCTYPE html>
+<html>
+<head>
+  <title>track my fart</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="http://maps.google.com/maps/api/js?sensor=true"></script>
+  <script src="scripts/gmaps.js"></script>
+  <script src="scripts/js.cookie.js"></script>
+  <style type="text/css">
+   html,
+   body,
+   #map {
+       display: block;
+       width: 500px;
+       height: 500px;
+   }
+
+   #map {
+       background: #58B;
+   }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  name <input type="text" id="name">   
+  Long <input type="text" id="long">
+  lat <input type="text" id="lat">
+  <button>submit</button>
+  <div class="list">
+    <ul></ul>
+  </div>
+  <script>
+
+   var farts = {
+    "fart1" : {
+       "lat": 38.771739, 
+       "lng": -121.259608 
+    },
+    "fart2" : {
+       "lat": 38.757451, 
+       "lng": -121.257977 
+    }
+   };
+   if (Cookies.getJSON('farts') == null) {
+    Cookies.set('farts', farts, { expires: 7 });
+   }
+   console.log( Cookies.getJSON('farts'));
+   var farts =  Cookies.getJSON('farts');
+   $('.list ul').append(farts);
+ 
+ // Cookies.set('farts', farts);
+   var map = new GMaps({
+   el: '#map',
+   lat: 40.773006,
+   lng:  -150.263791
+});
+function render(){
+   GMaps.geolocate({
+      success: function(position) {
+       map.setCenter(position.coords.latitude, position.coords.longitude);
+       $('#lat').val(position.coords.latitude);
+       $('#long').val(position.coords.longitude);
+       $.each(farts, function(i) {
+        // console.log('i: ' + i);
+        map.addMarker({
+           lat:  Number(farts[i].lat),
+           lng:  Number(farts[i].lng),
+           title: 'Lima',
+           click: function(e) {
+              alert('You clicked in this marker ' + position.coords.longitude + ' ' + farts.fart1.lng);
+           }
+        });
+     });
+    },
+    error: function(error) {
+       alert('Geolocation failed: '+error.message);
+    }
+  });
+ };
+
+    render();
+   $('button').click(function() {
+      var newLoc = $('#name').val();
+      var newLat = $('#lat').val();
+      var newLng = $('#long').val();
+
+      farts[newLoc] = {"lat" : Number(newLat), "lng" : Number(newLng)};
+      // console.log(farts);
+      Cookies.set('farts', farts, { expires: 7 });
+      render();
+      // $('#name').val('');
+      // $('#lat').val('');
+      // $('#long').val('');
+  });
+</script>
+</body>
+</html>
+
